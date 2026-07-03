@@ -91,4 +91,5 @@ func (h *GroupJoinHandler) Handle(_ uint32, _ uint32, payload []byte) {
 	}
 
 	SendSimpleAck(h.hub, h.log, hdr, cmd.CMD_GROUP_JOIN_ACK, errno.OK, fmt.Sprintf("Ok:%d", req.GetGid()))
+	h.log.Info("group-join: ok", "gid", req.GetGid(), "uid", req.GetUid(), "sid", hdr.Sid)
 }
