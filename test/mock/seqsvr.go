@@ -44,4 +44,8 @@ func (m *SeqClient) AllocSeq(_ context.Context, sid int64) (int64, error) {
 	return m.seq.Add(1) + base, nil
 }
 
+func (m *SeqClient) AllocGid(_ context.Context) (int64, error) {
+	return 100001, nil
+}
+
 func (m *SeqClient) Close() error { return nil }

@@ -28,6 +28,7 @@ import (
 	"github.com/sunchao1/hi-im-api/pkg/im/cmd"
 
 	"github.com/sunchao1/hi-im-usrsvr/internal/config"
+	"github.com/sunchao1/hi-im-usrsvr/internal/group"
 	"github.com/sunchao1/hi-im-usrsvr/internal/health"
 	"github.com/sunchao1/hi-im-usrsvr/internal/hub"
 	imhttp "github.com/sunchao1/hi-im-usrsvr/internal/http"
@@ -63,6 +64,7 @@ func main() {
 	defer func() { _ = seqClient.Close() }()
 
 	sessStore := session.NewStore(rdb, cfg.ChatSidTTL)
+	groupStore := group.NewStore(rdb, cfg.ChatSidTTL)
 
 	hubCfg, err := hub.ConfigFromEnv(cfg.NID, cfg.SubCmds, cfg.AuthUser, cfg.AuthPass, cfg.BackendAddr)
 	if err != nil {
@@ -78,10 +80,14 @@ func main() {
 	onlineH := hub.NewOnlineHandler(sessStore, seqClient, hubClient, cfg.M4SkipToken)
 	offlineH := hub.NewOfflineHandler(sessStore)
 	pingH := hub.NewPingHandler(sessStore, hubClient)
+	groupCreatH := hub.NewGroupCreatHandler(groupStore, seqClient, sessStore, hubClient)
+	groupJoinH := hub.NewGroupJoinHandler(groupStore, sessStore, hubClient)
 
 	_ = hubClient.RegisterHandler(cmd.CMD_ONLINE, onlineH.Handle)
 	_ = hubClient.RegisterHandler(hub.CMDOffline, offlineH.Handle)
 	_ = hubClient.RegisterHandler(cmd.CMD_PING, pingH.Handle)
+	_ = hubClient.RegisterHandler(cmd.CMD_GROUP_CREAT, groupCreatH.Handle)
+	_ = hubClient.RegisterHandler(cmd.CMD_GROUP_JOIN, groupJoinH.Handle)
 
 	if err := hubClient.Start(ctx); err != nil {
 		log.Error("hub start failed", "err", err)

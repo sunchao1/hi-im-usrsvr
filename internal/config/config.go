@@ -43,7 +43,7 @@ func ConfigFromEnv() (Config, error) {
 		BackendAddr: os.Getenv("HIIM_BACKEND_ADDR"),
 		AuthUser:    envOr("HIIM_AUTH_USER", "proxy"),
 		AuthPass:    envOr("HIIM_AUTH_PASS", "proxy"),
-		SubCmds:     envOr("HIIM_SUB_CMDS", "0x0101,0x0103,0x0105"),
+		SubCmds:     envOr("HIIM_SUB_CMDS", "0x0101,0x0103,0x0105,0x0301,0x0305"),
 		RedisAddr:   envOr("HIIM_REDIS_ADDR", "127.0.0.1:6379"),
 		SeqsvrAddr:  envOr("HIIM_SEQSVR_ADDR", "127.0.0.1:50051"),
 		LogLevel:    envOr("HIIM_LOG_LEVEL", "info"),

@@ -24,9 +24,10 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-// Client allocates SID/SEQ via hi-im-seqsvr gRPC.
+// Client allocates SID/SEQ/GID via hi-im-seqsvr gRPC.
 type Client interface {
 	AllocSid(ctx context.Context) (int64, error)
+	AllocGid(ctx context.Context) (int64, error)
 	AllocSeq(ctx context.Context, sid int64) (int64, error)
 	Close() error
 }
@@ -70,6 +71,19 @@ func (c *grpcClient) AllocSid(ctx context.Context) (int64, error) {
 		return 0, fmt.Errorf("invalid sid %d", resp.GetSid())
 	}
 	return resp.GetSid(), nil
+}
+
+func (c *grpcClient) AllocGid(ctx context.Context) (int64, error) {
+	callCtx, cancel := withTimeout(ctx, 3*time.Second)
+	defer cancel()
+	resp, err := c.client.AllocGid(callCtx, &seqv1.AllocGidRequest{})
+	if err != nil {
+		return 0, err
+	}
+	if resp.GetGid() <= 0 {
+		return 0, fmt.Errorf("invalid gid %d", resp.GetGid())
+	}
+	return resp.GetGid(), nil
 }
 
 func (c *grpcClient) AllocSeq(ctx context.Context, sid int64) (int64, error) {
