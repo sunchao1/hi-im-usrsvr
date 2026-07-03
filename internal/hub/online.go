@@ -95,7 +95,7 @@ func (h *OnlineHandler) Handle(_ uint32, _ uint32, payload []byte) {
 		return
 	}
 
-	cid := hdr.Sid
+	cid := hdr.Cid
 	gatewayNid := hdr.Nid
 
 	if old, err := h.sess.GetSidAttr(ctx, req.GetSid()); err == nil && old != nil {
@@ -110,6 +110,7 @@ func (h *OnlineHandler) Handle(_ uint32, _ uint32, payload []byte) {
 		return
 	}
 
+	h.log.Info("online: ok", "sid", req.GetSid(), "uid", req.GetUid(), "cid", cid, "gatewayNid", gatewayNid, "seq", seq)
 	h.sendAck(ctx, hdr, &req, uint64(seq), errno.OK, "OK")
 }
 
